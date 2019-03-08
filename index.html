@@ -1,0 +1,391 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Gulp Primer</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/gulp.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github-gist.min.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section class="centered">
+          <p>フロントエンドビルドツール</p>
+          <h1>Gulp.js入門</h1>
+        </section>
+        <section>
+          <h2>フロントエンドビルド</h2>
+          <div class="fragment fade-up">
+            <ul>
+              <li>SCSSをCSSに変換する</li>
+              <li>ES2015をトランスパイルする</li>
+              <li>EJSをHTMLに変換する</li>
+              <li>ファイルを圧縮する</li>
+              <li>ファイルをコピーする</li>
+            </ul>
+            <p>etc...</p>
+          </div>
+        </section>
+        <section>
+          <h2>ビルド方法はいろいろある</h2>
+          <ul>
+            <li class="fragment fade-up">オンラインサービス</li>
+            <li class="fragment fade-up">デスクトップアプリ</li>
+            <li class="fragment fade-up">エディタのプラグイン</li>
+            <li class="fragment fade-up">コマンドラインツール</li>
+          </ul>
+          <p class="fragment fade-in">Gulp.js は <span class="underlined">コマンドラインツール</span></p>
+        </section>
+        <section class="centered">
+          <div class="text-large">
+            コマンドラインツールは<br /><span class="underlined">設定の共有が簡単</span><br /><span class="underlined">誰がビルドしても同じ結果が得られる</span>
+          </div>
+        </section>
+        <section>
+          <h2>デモのダウンロード</h2>
+          <pre><code class="hljs shell" data-trim>
+$ git clone git@github.com:MasahiroHarada/gulp-primer.git
+$ cd gulp-primer
+          </code></pre>
+        </section>
+        <section>
+          <section>
+            <h2>Demo 1. SCSSをCSSに変換する</h2>
+            <pre><code class="hljs shell">$ cd ./1_compile-scss</code></pre>
+          </section>
+          <section>
+              <h2>Gulpのインストール</h2>
+              <pre><code class="hljs shell" data-trim>
+$ npm init --yes
+$ npm install --dev gulp gulp-sass dart-sass
+              </code></pre>
+              <ul>
+                <li><code>gulp</code>：Gulpライブラリ</li>
+                <li><code>gulp-sass</code>：Sassコンパイルを行うGulpプラグイン</li>
+                <li><code>dart-sass</code>：Sassコンパイラ</li>
+              </ul>
+            </section>
+            <section>
+              <h2>gulpfile.js</h2>
+              <p>ビルド手順を記述するファイル</p>
+              <pre><code class="hljs javascript" data-trim>
+const gulp = require('gulp');
+const gulpSass = require('gulp-sass');
+
+// ビルドタスクを関数で表現する
+function scss() {
+  return gulp.src('src/sass/**/*.scss') // scssファイルを取得
+    .pipe(gulpSass()) // scssからcssへの変換処理
+    .pipe(gulp.dest('dist/css')); // cssディレクトリに出力
+}
+
+exports.dev = scss; // 名前をつけてエクスポート
+              </code></pre>
+            </section>
+            <section>
+              <h2>Gulpにおけるビルドの概要</h2>
+              <img src="img/fig-1.png" alt="">
+              <p><code>src</code>でファイルの内容を取得 → ファイル内容の変換処理（プラグイン）を<code>pipe</code>で繋ぐ → 最終的に<code>dest</code>で出力。</p>
+            </section>
+            <section>
+              <h2>ビルド実行！</h2>
+              <pre><code class="hljs shell">$ ./node_modules/.bin/gulp dev</code></pre>
+              <p><code>dev</code>はタスクをエクスポートした名前。</p>
+            </section>
+            <section>
+              <h2>npmスクリプト</h2>
+              <pre><code class="hljs javascript" data-trim>
+"scripts": {
+  "start": "gulp dev"
+}
+              </code></pre>
+              <p>npmスクリプトはnode_modulesディレクトリをコマンド探索パスに含めてくれる。なのでコマンドがスッキリ。</p>
+            </section>
+            <section>
+              <h2>もう一度ビルド実行！</h2>
+              <pre><code class="hljs shell">$ npm run start</code></pre>
+            </section>
+        </section>
+        <section class="centered">
+          <div class="text-large">
+            <p><span class="underlined">gulpfile.js</span> にビルド手順、<br /><span class="underlined">package.json</span> に依存プラグインや<br />ビルドコマンドを記述して <span class="underlined">Git</span> で共有</p>
+            <div class="fragment fade-in">
+              <p>↓</p>
+              <p>ビルド方法をチームで簡単に共有できる！</p>
+            </div>
+          </div>
+        </section>
+        <section>
+          <section>
+            <h2>Demo 2. ファイルの変更を監視する</h2>
+            <pre><code class="hljs shell" data-trim="">
+$ cd ../2_watch-file-changes
+$ npm init --yes
+$ npm install --dev gulp gulp-sass dart-sass
+            </code></pre>
+          </section>
+          <section>
+            <h2>gulpfile.js</h2>
+            <pre><code class="hljs javascript" data-trim>
+const gulp = require('gulp');
+const gulpSass = require('gulp-sass');
+
+function watchFiles(done) {
+  // watchの第一引数のファイルが変更されたら
+  // 第二引数に渡した関数が実行される。
+  gulp.watch('src/sass/**/*.scss', scss);
+
+  // 同期処理の場合はタスクの第一引数に渡ってくる
+  // コールバック関数を実行してタスクの完了を通知する。
+  done();
+}
+
+function scss() {
+  return gulp.src('src/sass/**/*.scss')
+    .pipe(gulpSass())
+    .pipe(gulp.dest('dist'));
+}
+
+exports.dev = gulp.series(scss, watchFiles); // タスクを順次実行
+            </code></pre>
+          </section>
+          <section>
+            <h2>ビルド実行！</h2>
+            <pre><code class="hljs javascript" data-trim>
+"scripts": {
+"start": "gulp dev"
+}
+            </code></pre>
+            <pre><code class="hljs shell">$ npm run start</code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Demo 3. EJSをHTMLに変換する</h2>
+            <pre><code class="hljs shell" data-trim>
+$ cd ../3_compile-templates
+$ npm init --yes
+$ npm install --dev gulp gulp-ejs
+            </code></pre>
+          </section>
+          <section>
+            <h2>gulpfile.js</h2>
+            <pre><code class="hljs javascript" data-trim>
+const gulp = require('gulp');
+const gulpEjs = require('gulp-ejs');
+
+function ejs() {
+  return gulp.src([
+    'src/ejs/**/*.ejs',
+    '!src/ejs/**/_*.ejs' // 処理除外ファイル
+  ])
+    .pipe(gulpEjs({}, {}, { ext: '.html' }))
+    .pipe(gulp.dest('dist'));
+}
+
+exports.dev = ejs;
+            </code></pre>
+          </section>
+          <section>
+            <h2>ビルド実行！</h2>
+            <pre><code class="hljs javascript" data-trim>
+"scripts": {
+"start": "gulp dev"
+}
+            </code></pre>
+            <pre><code class="hljs shell">$ npm run start</code></pre>
+          </section>
+        </section>
+        <section class="centered">
+          <div class="text-large">
+            さまざまな変換処理＝プラグインを<br />組み合わせてタスクを作成
+          </div>
+        </section>
+        <section>
+          <section>
+            <h2>Demo 4. ローカルサーバーを起動する</h2>
+            <pre><code class="hljs shell" data-trim>
+$ cd ../4_http-server
+$ npm init --yes
+$ npm install --dev gulp browser-sync
+            </code></pre>
+          </section>
+          <section>
+            <h2>gulpfile.js</h2>
+            <pre><code class="hljs javascript" data-trim>
+const gulp = require('gulp');
+const browserSync = require('browser-sync');
+
+// ローカルWebサーバー作成
+const server = browserSync.create();
+
+// サーバー再起動
+function reload(done) {
+  server.reload();
+  done();
+}
+
+// サーバー起動
+function serve(done) {
+  server.init({
+    server: {
+      baseDir: './public'
+    }
+  });
+  done();
+}
+
+function watchFiles(done) {
+  gulp.watch('./public/**/*.html', reload);
+  done();
+}
+
+exports.dev = gulp.series(serve, watchFiles);
+            </code></pre>
+          </section>
+          <section>
+            <h2>ビルド実行！</h2>
+            <pre><code class="hljs javascript" data-trim>
+"scripts": {
+"start": "gulp dev"
+}
+            </code></pre>
+            <pre><code class="hljs shell">$ npm run start</code></pre>
+            <p>👉 <a href="http://localhost:3000">http://localhost:3000</a></p>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Demo 5. タスクを組み合わせる</h2>
+            <pre><code class="hljs shell" data-trim>
+$ cd ../5_wiring-up
+$ npm init --yes
+$ npm install --dev gulp gulp-sass gulp-ejs dart-sass browser-sync
+            </code></pre>
+          </section>
+          <section>
+            <h2>gulpfile.js</h2>
+            <pre><code class="hljs javascript" data-trim>
+const gulp = require('gulp');
+const gulpSass = require('gulp-sass');
+const gulpEjs = require('gulp-ejs');
+const browserSync = require('browser-sync');
+
+const server = browserSync.create();
+
+function reload(done) {
+  server.reload();
+  done();
+}
+
+function serve(done) {
+  server.init({
+    server: {
+      baseDir: './dist'
+    }
+  });
+  done();
+}
+
+function scss() {
+  return gulp.src('src/sass/**/*.scss')
+    .pipe(gulpSass())
+    .pipe(gulp.dest('dist/css'));
+}
+
+function ejs() {
+  return gulp.src([
+    'src/ejs/**/*.ejs',
+    '!src/ejs/**/_*.ejs'
+  ])
+    .pipe(gulpEjs({}, {}, { ext: '.html' }))
+    .pipe(gulp.dest('dist'));
+}
+
+function watchFiles(done) {
+  gulp.watch('src/sass/**/*.scss', gulp.series(scss, reload));
+  gulp.watch('src/ejs/**/*.ejs', gulp.series(ejs, reload));
+  done();
+}
+
+exports.dev = gulp.series(
+  gulp.pallarel(scss, ejs), // 並列処理
+  serve,
+  watchFiles
+);
+            </code></pre>
+          </section>
+          <section>
+            <h2>ビルド実行！</h2>
+            <pre><code class="hljs javascript" data-trim>
+"scripts": {
+"start": "gulp dev"
+}
+            </code></pre>
+            <pre><code class="hljs shell">$ npm run start</code></pre>
+            <p>👉 <a href="http://localhost:3000">http://localhost:3000</a></p>
+          </section>
+        </section>
+        <section>
+          <h2>プロダクションでの設定例</h2>
+          <pre><code class="hljs javascript" data-trim>
+function scss() {
+  return gulp
+    .src(config.src)
+    .pipe(sassVariables({
+      $env: process.env.NODE_ENV
+    }))
+    .pipe(plumber())
+    .pipe(sourcemaps.init())
+    .pipe(
+      gulpSass({
+        outputStyle: 'expanded',
+        linefeed: 'crlf'
+      }).on('error', gulpSass.logError)
+    )
+    .pipe(autoprefixer())
+    .pipe(cleancss({ compatibility: 'ie9' }))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(config.dest));
+}
+          </code></pre>
+        </section>
+        <section class="centered">
+          <div class="text-large">おしまい</div>
+        </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+		</script>
+	</body>
+</html>

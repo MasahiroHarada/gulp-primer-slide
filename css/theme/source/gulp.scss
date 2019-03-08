@@ -1,0 +1,91 @@
+// Default mixins and settings -----------------
+@import "../template/mixins";
+@import "../template/settings";
+// ---------------------------------------------
+
+// Include theme-specific fonts
+@import url(https://fonts.googleapis.com/css?family=Inconsolata|PT+Sans:400,700|Noto+Sans+JP:400,700);
+
+$backgroundColor: #cf4647;
+
+$mainFont: 'PT Sans', 'Noto Sans JP', sans-serif;
+$mainFontSize: 30px;
+$mainColor: #eee;
+
+$blockMargin: 2rem;
+$headingMargin: 0 0 3rem 0;
+
+$headingFont: 'PT Sans', 'Noto Sans JP', sans-serif;
+$headingTextTransform: none;
+$headingColor: #eee;
+
+$heading1Size: 3.5em;
+$heading2Size: 1.5em;
+$heading3Size: 1.25em;
+$heading4Size: 1.0em;
+
+$linkColor: #fff;
+$linkColorHover: $linkColor;
+
+$selectionBackgroundColor: #7fce46;
+$selectionColor: #fff;
+
+// Theme template ------------------------------
+@import "../template/theme";
+// ---------------------------------------------
+
+.reveal {
+  .slides {
+    text-align: left;
+
+    .centered {
+      text-align: center;
+    }
+
+    .text-large {
+      font-size: $heading2Size;
+    }
+
+    .underlined {
+      border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+    }
+  
+    section,
+    section>section {
+      line-height: 1.8;
+      font-weight: inherit;
+    }
+
+    a {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    p {
+      line-height: inherit;
+    }
+
+    img {
+      border: 0;
+      box-shadow: none;
+    }
+
+    code {
+      font-family: Inconsolata, monospace;
+      font-size: 1.125em;
+    }
+
+    pre {
+      border-radius: .25rem;
+      box-shadow: none;
+      line-height: 1.8;
+      width: 100%;
+
+      code {
+        border-radius: .25rem;
+        padding: .75em 1em;
+      }
+    }
+  }
+}
